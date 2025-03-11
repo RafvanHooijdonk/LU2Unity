@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class MenuPanel : MonoBehaviour
 {
-    public GameObject panel; // Het menu
+    public GameObject panel; // Het menu TEST
     public Button openButton; // "+" knop
     public Button closeButton; // "X" knop
     public List<GameObject> prefabs;
