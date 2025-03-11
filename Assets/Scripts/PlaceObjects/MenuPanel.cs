@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class MenuPanel : MonoBehaviour
 {
     public GameObject panel; // Het menu TEST
-    public Button openButton; // "+" knop
+    public Button openButton; // "+" knop TEST
     public Button closeButton; // "X" knop
     public List<GameObject> prefabs;
     public List<GameObject> clones = new List<GameObject>();
