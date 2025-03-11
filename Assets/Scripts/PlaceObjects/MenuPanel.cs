@@ -40,7 +40,7 @@ public class MenuPanel : MonoBehaviour
         dadWell.isDragging = true;
         dadWell.menuPanel = this;
 
-        // Geef de environmentId mee aan DragAndDrop zodat het later gebruikt kan worden
+        // Geef de environmentId mee aan DragAndDrop zodat het later gebruikt kan worden TEST
         dadWell.Initialize(prefabIndex, environmentId);
 
         // Verberg het menu en de "+" knop bij slepen
