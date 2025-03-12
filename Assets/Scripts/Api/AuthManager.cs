@@ -14,7 +14,7 @@ public class AuthManager : MonoBehaviour
         }
 
         instance = this;
-        DontDestroyOnLoad(gameObject); // Zorgt ervoor dat dit object niet verdwijnt bij scène-wissel
+        DontDestroyOnLoad(gameObject); 
     }
 
     public void SetAccessToken(string token)

@@ -53,8 +53,8 @@ public class ApiClient : MonoBehaviour
         if (!string.IsNullOrEmpty(response))
         {
             var loginResponse = JsonUtility.FromJson<PostLoginResponseDto>(response);
-            AuthManager.instance.SetAccessToken(loginResponse.accessToken); // Opslaan in AuthManager
-            ShowFeedbackMessage("Login succesvol!", Color.green); // Succesvolle login
+            AuthManager.instance.SetAccessToken(loginResponse.accessToken); 
+            ShowFeedbackMessage("Login succesvol!", Color.green);
             StartCoroutine(WaitAndLoadScene("SelectMenu"));
         }
         else
@@ -76,7 +76,6 @@ public class ApiClient : MonoBehaviour
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
 
-            // Gebruik het access token uit de AuthManager
             string accessToken = AuthManager.instance.AccessToken;
             if (!string.IsNullOrEmpty(accessToken))
             {
@@ -100,14 +99,12 @@ public class ApiClient : MonoBehaviour
     }
     private void ShowFeedbackMessage(string message, Color messageColor)
     {
-        // Voeg een null-check toe om te voorkomen dat je het object probeert te gebruiken als het null is
         if (Output != null)
         {
             Output.text = message;
             Output.color = messageColor;
             Output.gameObject.SetActive(true);
 
-            // Start de coroutine om het bericht na 3 seconden te verbergen
             StartCoroutine(HideFeedbackMessageAfterDelay(5f));
         }
     }
@@ -115,7 +112,6 @@ public class ApiClient : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        // Controleer of Output nog geldig is voordat je het verbergt
         if (Output != null)
         {
             HideFeedbackMessage();
@@ -123,7 +119,6 @@ public class ApiClient : MonoBehaviour
     }
     private void HideFeedbackMessage()
     {
-        // Alleen verbergen als Output niet null is
         if (Output != null)
         {
             Output.gameObject.SetActive(false);
@@ -131,7 +126,7 @@ public class ApiClient : MonoBehaviour
     }
     private IEnumerator WaitAndLoadScene(string sceneName)
     {
-        yield return new WaitForSeconds(1f);  // Wacht 1 seconden
-        SceneManager.LoadScene(sceneName);     // Laad de opgegeven scene
+        yield return new WaitForSeconds(1f); 
+        SceneManager.LoadScene(sceneName);   
     }
 }
