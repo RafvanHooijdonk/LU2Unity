@@ -1,4 +1,5 @@
 using UnityEngine;
+using Newtonsoft.Json;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections;
@@ -6,18 +7,21 @@ using System.Collections.Generic;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
+
 public class IslandButtonManager : MonoBehaviour
 {
-    public Button buttonIsland1;
-    public Button buttonIsland2;
-    public Button buttonIsland3;
-    public Button buttonIsland4;
-    public Button buttonIsland5;
+    public Button buttonIsland1, buttonIsland2, buttonIsland3, buttonIsland4, buttonIsland5;
+    public Button deleteButtonIsland1, deleteButtonIsland2, deleteButtonIsland3, deleteButtonIsland4, deleteButtonIsland5;
+    public Button logoutButton; // Nieuwe uitlogknop
 
     public GameObject popupPanel;
     public TMP_Text popupText;
     public TMP_InputField nameInputField;
     public Button confirmButton;
+
+    public GameObject outputPanel;  // Het nieuwe OutputPanel
+    public TMP_Text outputText;     // De tekstcomponent in het OutputPanel
+
 
     private string selectedIsland = "";
     private Button selectedButton;
@@ -25,17 +29,28 @@ public class IslandButtonManager : MonoBehaviour
     private Dictionary<string, string> worldButtonMap = new Dictionary<string, string>();
     private List<string> existingWorldNames = new List<string>();
     private List<Button> islandButtons;
+    private List<Button> deleteButtons;
 
     void Start()
     {
         islandButtons = new List<Button> { buttonIsland1, buttonIsland2, buttonIsland3, buttonIsland4, buttonIsland5 };
+        deleteButtons = new List<Button> { deleteButtonIsland1, deleteButtonIsland2, deleteButtonIsland3, deleteButtonIsland4, deleteButtonIsland5 };
+
         foreach (Button button in islandButtons)
         {
             button.onClick.AddListener(() => OnIslandButtonClick(button));
         }
+        for (int i = 0; i < deleteButtons.Count; i++)
+        {
+            int index = i; // Nodig voor correcte verwijzing in de lambda
+            deleteButtons[i].onClick.AddListener(() => OnDeleteButtonClick(index));
+        }
+
         confirmButton.onClick.AddListener(OnConfirmButtonClick);
         popupPanel.SetActive(false);
         StartCoroutine(LoadExistingEnvironments());
+        // Toevoegen van uitlogknop functionaliteit
+        logoutButton.onClick.AddListener(OnLogoutButtonClick);
     }
 
     private void OnIslandButtonClick(Button islandButton)
@@ -116,6 +131,8 @@ public class IslandButtonManager : MonoBehaviour
                 selectedButton.GetComponentInChildren<TMP_Text>().text = worldName;
                 selectedButton.onClick.RemoveAllListeners();
                 selectedButton.onClick.AddListener(() => SceneManager.LoadScene("Environment"));
+
+                UpdateDeleteButtons();
             }
         }
     }
@@ -136,37 +153,103 @@ public class IslandButtonManager : MonoBehaviour
                 string jsonResponse = request.downloadHandler.text;
                 Environment2D[] environments = JsonHelper.FromJson<Environment2D>(jsonResponse);
 
-                if (environments != null)
+                for (int i = 0; i < environments.Length && i < islandButtons.Count; i++)
                 {
-                    for (int i = 0; i < environments.Length && i < islandButtons.Count; i++)
+                    string environmentName = environments[i].name;
+                    string environmentId = environments[i].id;
+                    existingWorldNames.Add(environmentName);
+
+                    TMP_Text buttonText = islandButtons[i].GetComponentInChildren<TMP_Text>();
+                    buttonText.text = environmentName;
+
+                    Button islandButton = islandButtons[i];
+                    islandButton.onClick.RemoveAllListeners();
+                    islandButton.onClick.AddListener(() =>
                     {
-                        string environmentName = environments[i].name;
-                        string environmentId = environments[i].id;
-                        existingWorldNames.Add(environmentName);
-
-                        TMP_Text buttonText = islandButtons[i].GetComponentInChildren<TMP_Text>();
-                        if (buttonText != null)
-                        {
-                            buttonText.text = environmentName;
-                        }
-
-                        Button islandButton = islandButtons[i];
-                        islandButton.onClick.RemoveAllListeners();
-                        islandButton.onClick.AddListener(() =>
-                        {
-                            GameManager.instance.SetSelectedEnvironment(environmentName, environmentId);
-                            SceneManager.LoadScene("Environment");
-                        });
-                    }
+                        GameManager.instance.SetSelectedEnvironment(environmentName, environmentId);
+                        SceneManager.LoadScene("Environment");
+                    });
                 }
-                else
-                {
-                    Debug.LogError("Er zijn geen omgevingen beschikbaar in de response.");
-                }
+                UpdateDeleteButtons();
             }
         }
     }
+
+    private void OnDeleteButtonClick(int index)
+    {
+        string worldName = islandButtons[index].GetComponentInChildren<TMP_Text>().text;
+        StartCoroutine(DeleteEnvironment(worldName, index));
+    }
+
+    private IEnumerator DeleteEnvironment(string worldName, int index)
+    {
+        // Maak een object om de naam in de body van de POST request te zetten
+        var requestData = new { name = worldName };
+
+        // Serialiseer het object naar JSON
+        string jsonData = JsonConvert.SerializeObject(requestData);
+
+        using (UnityWebRequest request = new UnityWebRequest("https://avansict2230382.azurewebsites.net/api/Environment2D/DeleteEnvironment", "POST"))
+        {
+            // Verstuur de JSON als body van de request
+            request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonData));
+            request.downloadHandler = new DownloadHandlerBuffer();
+
+            // Zet de juiste headers
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Authorization", "Bearer " + AuthManager.instance.AccessToken);
+
+            // Verstuur de request
+            yield return request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                // Log de fout en de serverresponse voor debuggen
+                Debug.LogError("Fout bij het verzenden van de request: " + request.error);
+                Debug.LogError("Response text: " + request.downloadHandler.text); // Dit toont de response van de server
+            }
+            else
+            {
+                // Verwijder de wereld als de request succesvol was
+                existingWorldNames.Remove(worldName);
+                islandButtons[index].GetComponentInChildren<TMP_Text>().text = "NIEUWE WERELD";
+                islandButtons[index].onClick.RemoveAllListeners();
+                islandButtons[index].onClick.AddListener(() => OnIslandButtonClick(islandButtons[index]));
+                worldButtonMap.Remove(islandButtons[index].name);
+
+                UpdateDeleteButtons();
+
+                outputPanel.SetActive(true);
+
+                // Toon de tekst in het nieuwe OutputPanel
+                outputText.color = Color.green;
+                outputText.text = $"\"Wereld '{worldName}' en de bijbehorende objecten zijn succesvol verwijderd.";
+
+                Debug.Log($"Wereld '{worldName}' en objecten verwijderd uit database.");
+
+                yield return new WaitForSeconds(5f);
+
+                // Zet het OutputPanel weer uit
+                outputPanel.SetActive(false);
+            }
+        }
+    }
+
+    private void UpdateDeleteButtons()
+    {
+        for (int i = 0; i < islandButtons.Count; i++)
+        {
+            string buttonText = islandButtons[i].GetComponentInChildren<TMP_Text>().text;
+            deleteButtons[i].gameObject.SetActive(existingWorldNames.Contains(buttonText));
+        }
+    }
+    private void OnLogoutButtonClick()
+    {
+        // Ga terug naar het "MainMenu"
+        SceneManager.LoadScene("MainMenu");
+    }
 }
+
 
 public static class JsonHelper
 {

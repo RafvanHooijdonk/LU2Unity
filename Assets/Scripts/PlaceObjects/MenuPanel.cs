@@ -155,16 +155,6 @@ public class MenuPanel : MonoBehaviour
         openButton.gameObject.SetActive(!hide);
     }
 
-    // Verwijder alle geplaatste objecten
-    public void clear()
-    {
-        Debug.Log("Clearing");
-        foreach (var i in clones)
-        {
-            Destroy(i);
-        }
-    }
-
     // Selecteer een prefab voor plaatsing via het menu
     public void SelectPrefab(int prefabIndex)
     {

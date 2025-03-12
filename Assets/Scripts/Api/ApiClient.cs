@@ -108,7 +108,7 @@ public class ApiClient : MonoBehaviour
             Output.gameObject.SetActive(true);
 
             // Start de coroutine om het bericht na 3 seconden te verbergen
-            StartCoroutine(HideFeedbackMessageAfterDelay(3f));
+            StartCoroutine(HideFeedbackMessageAfterDelay(5f));
         }
     }
     private IEnumerator HideFeedbackMessageAfterDelay(float delay)
