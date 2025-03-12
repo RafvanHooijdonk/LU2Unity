@@ -12,15 +12,15 @@ public class IslandButtonManager : MonoBehaviour
 {
     public Button buttonIsland1, buttonIsland2, buttonIsland3, buttonIsland4, buttonIsland5;
     public Button deleteButtonIsland1, deleteButtonIsland2, deleteButtonIsland3, deleteButtonIsland4, deleteButtonIsland5;
-    public Button logoutButton; // Nieuwe uitlogknop
+    public Button logoutButton; 
 
     public GameObject popupPanel;
     public TMP_Text popupText;
     public TMP_InputField nameInputField;
     public Button confirmButton;
 
-    public GameObject outputPanel;  // Het nieuwe OutputPanel
-    public TMP_Text outputText;     // De tekstcomponent in het OutputPanel
+    public GameObject outputPanel; 
+    public TMP_Text outputText;     
 
 
     private string selectedIsland = "";
@@ -42,14 +42,14 @@ public class IslandButtonManager : MonoBehaviour
         }
         for (int i = 0; i < deleteButtons.Count; i++)
         {
-            int index = i; // Nodig voor correcte verwijzing in de lambda
+            int index = i; 
             deleteButtons[i].onClick.AddListener(() => OnDeleteButtonClick(index));
         }
 
         confirmButton.onClick.AddListener(OnConfirmButtonClick);
         popupPanel.SetActive(false);
         StartCoroutine(LoadExistingEnvironments());
-        // Toevoegen van uitlogknop functionaliteit
+
         logoutButton.onClick.AddListener(OnLogoutButtonClick);
     }
 
@@ -183,34 +183,27 @@ public class IslandButtonManager : MonoBehaviour
 
     private IEnumerator DeleteEnvironment(string worldName, int index)
     {
-        // Maak een object om de naam in de body van de POST request te zetten
         var requestData = new { name = worldName };
 
-        // Serialiseer het object naar JSON
         string jsonData = JsonConvert.SerializeObject(requestData);
 
         using (UnityWebRequest request = new UnityWebRequest("https://avansict2230382.azurewebsites.net/api/Environment2D/DeleteEnvironment", "POST"))
         {
-            // Verstuur de JSON als body van de request
             request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonData));
             request.downloadHandler = new DownloadHandlerBuffer();
 
-            // Zet de juiste headers
             request.SetRequestHeader("Content-Type", "application/json");
             request.SetRequestHeader("Authorization", "Bearer " + AuthManager.instance.AccessToken);
 
-            // Verstuur de request
             yield return request.SendWebRequest();
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                // Log de fout en de serverresponse voor debuggen
                 Debug.LogError("Fout bij het verzenden van de request: " + request.error);
-                Debug.LogError("Response text: " + request.downloadHandler.text); // Dit toont de response van de server
+                Debug.LogError("Response text: " + request.downloadHandler.text); 
             }
             else
             {
-                // Verwijder de wereld als de request succesvol was
                 existingWorldNames.Remove(worldName);
                 islandButtons[index].GetComponentInChildren<TMP_Text>().text = "NIEUWE WERELD";
                 islandButtons[index].onClick.RemoveAllListeners();
@@ -221,7 +214,6 @@ public class IslandButtonManager : MonoBehaviour
 
                 outputPanel.SetActive(true);
 
-                // Toon de tekst in het nieuwe OutputPanel
                 outputText.color = Color.green;
                 outputText.text = $"\"Wereld '{worldName}' en de bijbehorende objecten zijn succesvol verwijderd.";
 
@@ -229,7 +221,6 @@ public class IslandButtonManager : MonoBehaviour
 
                 yield return new WaitForSeconds(5f);
 
-                // Zet het OutputPanel weer uit
                 outputPanel.SetActive(false);
             }
         }
@@ -245,7 +236,6 @@ public class IslandButtonManager : MonoBehaviour
     }
     private void OnLogoutButtonClick()
     {
-        // Ga terug naar het "MainMenu"
         SceneManager.LoadScene("MainMenu");
     }
 }
