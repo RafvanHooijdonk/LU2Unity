@@ -9,7 +9,7 @@ public class DragAndDrop : MonoBehaviour
     public bool isDragging = false;
     public MenuPanel menuPanel;
     public float gridSize = 1f;
-    private static GameObject previewIndicator; // Gedeelde preview voor alle objecten
+    private static GameObject previewIndicator; 
 
     private int prefabId;
     private string environmentId;
@@ -18,17 +18,15 @@ public class DragAndDrop : MonoBehaviour
 
     void Start()
     {
-        // Zoek of maak een preview-object
         if (previewIndicator == null)
         {
             previewIndicator = GameObject.Find("PlacementPreview");
 
             if (previewIndicator == null)
             {
-                // Als het niet bestaat, maak het aan
                 previewIndicator = new GameObject("PlacementPreview");
                 SpriteRenderer sr = previewIndicator.AddComponent<SpriteRenderer>();
-                sr.color = new Color(1, 1, 1, 0.5f); // Doorzichtig maken
+                sr.color = new Color(1, 1, 1, 0.5f);
             }
         }
 
@@ -42,7 +40,6 @@ public class DragAndDrop : MonoBehaviour
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             transform.position = new Vector3(mousePos.x, mousePos.y, 0);
 
-            // Update de preview-positie
             if (previewIndicator != null)
             {
                 previewIndicator.SetActive(true);
@@ -69,7 +66,6 @@ public class DragAndDrop : MonoBehaviour
 
         menuPanel?.HideMenu(true);
 
-        // Verstuur de API-call
         SendObjectToApi();
     }
 

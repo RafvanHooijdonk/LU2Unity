@@ -26,7 +26,7 @@ public class UserController : MonoBehaviour
             input.x = Input.GetAxisRaw("Horizontal");
             input.y = Input.GetAxisRaw("Vertical");
 
-            // Diagonal movement
+            // Diagonal movement staat nu UIT
             if (input.x != 0) input.y = 0;
 
             if (input != Vector2.zero)
