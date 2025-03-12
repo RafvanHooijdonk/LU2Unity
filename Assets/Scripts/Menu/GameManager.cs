@@ -4,15 +4,15 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    public string SelectedEnvironment { get; set; } // Naam van de geselecteerde omgeving
-    public string SelectedEnvironmentId { get; set; } // ID van de geselecteerde omgeving
+    public string SelectedEnvironment { get; set; }
+    public string SelectedEnvironmentId { get; set; } 
 
     private void Awake()
     {
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject); // Zorgt ervoor dat GameManager niet vernietigd wordt bij het wisselen van scenes
+            DontDestroyOnLoad(gameObject); 
         }
         else
         {

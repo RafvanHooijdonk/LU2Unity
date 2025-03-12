@@ -5,21 +5,21 @@ using UnityEngine.UI;
 
 public class EnvironmentUI : MonoBehaviour
 {
-    public TMP_Text environmentNameText; // UI-tekst voor de naam van de omgeving
-    public Button backButton; // UI-knop om terug te gaan naar het SelectMenu
+    public TMP_Text environmentNameText; 
+    public Button backButton; 
 
     void Start()
     {
         if (GameManager.instance != null)
         {
             string selectedEnvironment = GameManager.instance.SelectedEnvironment;
-            string environmentId = GameManager.instance.SelectedEnvironmentId; // Haal het ID op
+            string environmentId = GameManager.instance.SelectedEnvironmentId; 
 
             if (!string.IsNullOrEmpty(selectedEnvironment))
             {
-                environmentNameText.text = selectedEnvironment; // Zet de naam in de UI
+                environmentNameText.text = selectedEnvironment; 
                 Debug.Log($"Geselecteerde omgeving: {selectedEnvironment}");
-                Debug.Log($"Omgeving ID: {environmentId}"); // Log het ID
+                Debug.Log($"Omgeving ID: {environmentId}"); 
             }
             else
             {
@@ -33,7 +33,6 @@ public class EnvironmentUI : MonoBehaviour
             Debug.LogError("GameManager instance is niet beschikbaar!");
         }
 
-        // Zorg ervoor dat de knop correct is ingesteld
         if (backButton != null)
         {
             backButton.onClick.AddListener(GoBackToSelectMenu);
